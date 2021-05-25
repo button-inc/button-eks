@@ -1,0 +1,5 @@
+terraform 0.15.3
+helm 3.2.4
+python 3.8.6
+terraform-docs 0.12.1
+tflint 0.28.1
