@@ -1,0 +1,50 @@
+{{- $useExisitingVolume := and .Values.existingVolumes.enabled (ne .Values.existingVolumes.logs "") }}
+{{- if $useExisitingVolume -}}
+kind: StorageClass
+apiVersion: storage.k8s.io/v1
+metadata:
+  name: "sc-{{ include "..fullname" . }}-logs"
+  annotations:
+    "helm.sh/hook": "pre-install"
+provisioner: kubernetes.io/aws-ebs
+parameters:
+  type: gp2
+reclaimPolicy: Retain
+mountOptions:
+  - debug
+volumeBindingMode: Immediate
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: "pv-{{ include "..fullname" . }}-logs"
+  labels:
+    type: amazonEBS
+  annotations:
+    "helm.sh/hook": "pre-install"
+spec:
+  capacity:
+    storage: 2Gi
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: "sc-{{ include "..fullname" . }}-logs"
+  awsElasticBlockStore:
+    volumeID: {{ .Values.existingVolumes.logs }}
+    fsType: ext4
+---
+{{- end -}}
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: "pvc-{{ include "..fullname" . }}-logs"
+  annotations:
+    "helm.sh/hook": "pre-install"
+spec:
+  {{- if $useExisitingVolume }}
+  storageClassName: "sc-{{ include "..fullname" . }}-logs"
+  {{- end }}
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 2Gi
