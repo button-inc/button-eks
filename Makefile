@@ -9,3 +9,7 @@ local-setup:
 	pip install -r requirements.txt
 	pre-commit install
 	gitlint install-hook
+
+.PHONY: plan
+plan:
+	terraform plan | sed -r 's//←/g' > terraform.plan
