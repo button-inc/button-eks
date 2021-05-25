@@ -12,4 +12,4 @@ local-setup:
 
 .PHONY: plan
 plan:
-	terraform plan | sed -r 's//←/g' > terraform.plan
+	terraform plan | sed -r "s/\x1B\[([0-9]{1,3}(;[0-9]{1,2})?)?[mGK]//g" > terraform.plan
