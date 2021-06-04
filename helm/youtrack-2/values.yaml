@@ -1,0 +1,74 @@
+replicaCount: 1
+
+# https://hub.docker.com/r/jetbrains/youtrack/tags
+image:
+  repository: jetbrains/youtrack
+  tag: 2020.3.9516
+  pullPolicy: IfNotPresent
+
+nameOverride: youtrack-test
+fullnameOverride: youtrack-test
+
+service:
+  type: ClusterIP
+  port: 8000
+
+ingress:
+  enabled: true
+  annotations:
+    kubernetes.io/ingress.class: alb
+    alb.ingress.kubernetes.io/scheme: internet-facing
+    alb.ingress.kubernetes.io/target-type: ip
+    alb.ingress.kubernetes.io/listen-ports: '[{"HTTP":80},{"HTTPS":443}]'
+    alb.ingress.kubernetes.io/certificate-arn: "arn:aws:acm:ca-central-1:491327797652:certificate/05414c50-3a2a-4c0e-aca3-b2fc717561ca"
+    alb.ingress.kubernetes.io/ssl-policy: ELBSecurityPolicy-TLS-1-1-2017-01
+    # see https://kubernetes-sigs.github.io/aws-load-balancer-controller/v2.1/guide/tasks/ssl_redirect/
+    alb.ingress.kubernetes.io/actions.ssl-redirect: '{"Type": "redirect", "RedirectConfig": { "Protocol": "HTTPS", "Port": "443", "StatusCode": "HTTP_301"}}'
+    external-dns.alpha.kubernetes.io/hostname: "youtrack-test.buttoncloud.ca"
+
+  hosts:
+    - host: youtrack-test.buttoncloud.ca
+      paths: [""]
+
+  # tls:
+  #  - secretName: chart-example-tls
+  #    hosts: []
+
+# existingVolumes:
+#   enabled: true
+#   data: "vol-0f0eaf3f0da4efecc"
+#   logs: "vol-0693e17bd5c1d86a8"
+#   conf: "vol-06b35658f456c4a13"
+#   backups: "vol-0b201f8c49d7df4b9"
+
+existingVolumes:
+  enabled: false
+  data: "fsap-0e36124f77ed59011"
+  logs: "fsap-0e36124f77ed59011"
+  conf: "fsap-0e36124f77ed59011"
+  backups: "fsap-0e36124f77ed59011"
+
+securityContext:
+  runAsUser: 13001
+  runAsGroup: 13001
+  fsGroup: 13001
+
+resources:
+  # We usually recommend not to specify default resources and to leave this as a conscious
+  # choice for the user. This also increases chances charts run on environments with little
+  # resources, such as Minikube. If you do want to specify resources, uncomment the following
+  # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
+  #
+  # see https://youtrack-support.jetbrains.com/hc/en-us/articles/206546119-What-hardware-requirements-does-YouTrack-have-
+  limits:
+    cpu: 1.5
+    memory: 3Gi
+  requests:
+    cpu: 1.5
+    memory: 3Gi
+
+nodeSelector: {}
+
+tolerations: []
+
+affinity: {}

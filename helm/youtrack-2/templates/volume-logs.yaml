@@ -1,0 +1,94 @@
+# {{- $useExisitingVolume := and .Values.existingVolumes.enabled (ne .Values.existingVolumes.logs "") }}
+# {{- if $useExisitingVolume -}}
+# kind: StorageClass
+# apiVersion: storage.k8s.io/v1
+# metadata:
+#   name: "sc-{{ include "..fullname" . }}-logs"
+#   annotations:
+#     "helm.sh/hook": "pre-install"
+# provisioner: efs.csi.aws.com
+# parameters:
+#   type: gp2
+# reclaimPolicy: Retain
+# mountOptions:
+#   - debug
+# volumeBindingMode: Immediate
+# ---
+# apiVersion: v1
+# kind: PersistentVolume
+# metadata:
+#   name: "pv-{{ include "..fullname" . }}-logs"
+#   labels:
+#     type: amazonEBS
+#   annotations:
+#     "helm.sh/hook": "pre-install"
+# spec:
+#   capacity:
+#     storage: 2Gi
+#   accessModes:
+#     - ReadWriteOnce
+#   volumeMode: Filesystem
+#   storageClassName: "sc-{{ include "..fullname" . }}-logs"
+#   csi:
+#     driver: efs.csi.aws.com
+#     volumeHandle: fs-8e4b7563
+# ---
+# {{- end -}}
+# apiVersion: v1
+# kind: PersistentVolumeClaim
+# metadata:
+#   name: "pvc-{{ include "..fullname" . }}-logs"
+#   annotations:
+#     "helm.sh/hook": "pre-install"
+# spec:
+#   {{- if $useExisitingVolume }}
+#   storageClassName: "sc-{{ include "..fullname" . }}-logs"
+#   {{- end }}
+#   accessModes:
+#     - ReadWriteOnce
+#   resources:
+#     requests:
+#       storage: 2Gi
+
+kind: StorageClass
+apiVersion: storage.k8s.io/v1
+metadata:
+  name: "efs-sc-{{ include "..fullname" . }}-logs"
+  annotations:
+    "helm.sh/hook": "pre-install"
+provisioner: efs.csi.aws.com
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: "efs-claim-{{ include "..fullname" . }}-logs"
+  annotations:
+    "helm.sh/hook": "pre-install"
+spec:
+  # {{- if $useExisitingVolume }}
+  # storageClassName: "sc-{{ include "..fullname" . }}-logs"
+  # {{- end }}
+  accessModes:
+    - ReadWriteMany
+  storageClassName: "efs-sc-{{ include "..fullname" . }}-logs"
+  resources:
+    requests:
+      storage: 5Gi
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: efs-pv-{{ include "..fullname" . }}-logs
+  annotations:
+    "helm.sh/hook": "pre-install"
+spec:
+  capacity:
+    storage: 5Gi
+  volumeMode: Filesystem
+  accessModes:
+    - ReadWriteMany
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: efs-sc-{{ include "..fullname" . }}-logs
+  csi:
+    driver: efs.csi.aws.com
+    volumeHandle: fs-d7e6d83a

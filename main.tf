@@ -60,11 +60,25 @@ module "eks" {
 
   fargate_profiles = {
     argocd = {
-      namespace = "argocd"
-
       tags = {
         "managed-by" = "terraform"
-      }
+      },
+
+      selectors = [
+        {
+          namespace = "argocd"
+        }
+      ]
+    },
+    youtrack = {
+      tags = {
+        "managed-by" = "terraform"
+      },
+      selectors = [
+        {
+          namespace = "youtrack"
+        }
+      ]
     }
   }
 
@@ -108,4 +122,8 @@ module "acm" {
   source           = "button-inc/acm/aws"
   hosted_zone_name = "buttoncloud.ca."
   subdomain_names  = ["argocd", "youtrack"]
+}
+
+resource "aws_efs_file_system" "youtrack-efs" {
+  creation_token = "youtrack-efs"
 }
