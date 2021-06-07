@@ -60,7 +60,9 @@ resources:
     cpu: 1.5
     memory: 3Gi
 
-nodeSelector: {}
+nodeSelector: {
+  topology.kubernetes.io/zone: ca-central-1a
+}
 
 tolerations: []
 
