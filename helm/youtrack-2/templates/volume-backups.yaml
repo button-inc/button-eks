@@ -49,10 +49,11 @@
 #   resources:
 #     requests:
 #       storage: 10Gi
+
 kind: StorageClass
 apiVersion: storage.k8s.io/v1
 metadata:
-  name: "efs-sc-{{ include "..fullname" . }}-backups"
+  name: efs-sc-backups
   annotations:
     "helm.sh/hook": "pre-install"
 provisioner: efs.csi.aws.com
@@ -69,7 +70,7 @@ spec:
   # {{- end }}
   accessModes:
     - ReadWriteMany
-  storageClassName: "efs-sc-{{ include "..fullname" . }}-backups"
+  storageClassName: efs-sc-backups
   resources:
     requests:
       storage: 5Gi
@@ -87,7 +88,7 @@ spec:
   accessModes:
     - ReadWriteMany
   persistentVolumeReclaimPolicy: Retain
-  storageClassName: efs-sc-{{ include "..fullname" . }}-backups
+  storageClassName: efs-sc-backups
   csi:
     driver: efs.csi.aws.com
-    volumeHandle: fs-c2e6d82f
+    volumeHandle: {{ .Values.efs_ids.backups }}

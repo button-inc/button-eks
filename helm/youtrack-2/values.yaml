@@ -72,3 +72,9 @@ nodeSelector: {}
 tolerations: []
 
 affinity: {}
+
+efs_ids:
+  data: fs-27261fca
+  conf: fs-26261fcb
+  logs: fs-24261fc9
+  backups: 	fs-21261fcc

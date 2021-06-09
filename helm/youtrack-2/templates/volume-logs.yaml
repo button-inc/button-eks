@@ -50,12 +50,11 @@
 #     requests:
 #       storage: 2Gi
 
+# INDIVIDUAL
 kind: StorageClass
 apiVersion: storage.k8s.io/v1
 metadata:
-  name: "efs-sc-{{ include "..fullname" . }}-logs"
-  annotations:
-    "helm.sh/hook": "pre-install"
+  name: efs-sc-logs
 provisioner: efs.csi.aws.com
 ---
 apiVersion: v1
@@ -70,7 +69,7 @@ spec:
   # {{- end }}
   accessModes:
     - ReadWriteMany
-  storageClassName: "efs-sc-{{ include "..fullname" . }}-logs"
+  storageClassName: efs-sc-logs
   resources:
     requests:
       storage: 5Gi
@@ -88,7 +87,7 @@ spec:
   accessModes:
     - ReadWriteMany
   persistentVolumeReclaimPolicy: Retain
-  storageClassName: efs-sc-{{ include "..fullname" . }}-logs
+  storageClassName: efs-sc-logs
   csi:
     driver: efs.csi.aws.com
-    volumeHandle: fs-d7e6d83a
+    volumeHandle: {{ .Values.efs_ids.logs }}
